@@ -1,0 +1,23 @@
+# ONE-TIME migration — run once AFTER the ALTER TABLE has been executed in Supabase, then this workflow can be disabled/deleted.
+name: One-Time Backfill Order Status
+
+on:
+  workflow_dispatch:
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Backfill Script
+        run: node scripts/backfill-order-status.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
