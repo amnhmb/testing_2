@@ -48,8 +48,45 @@ async function run() {
 
     const invoices = await res.json();
     
+    // 23:50 MYT is UTC+8
+    const mytDateObj = new Date(Date.now() + 8 * 3600 * 1000);
+    const mytDateStr = mytDateObj.toISOString().split('T')[0];
+    const currentYM = mytDateStr.slice(0, 7);
+
+    const processedInvoices = [];
+    
+    invoices.forEach(inv => {
+      let order_status = inv.order_status || 'PENDING';
+      if (inv.notes && inv.notes.includes('__METADATA__:')) {
+        try {
+          const metaStr = inv.notes.split('__METADATA__:')[1];
+          const meta = JSON.parse(metaStr);
+          if (meta.order_status !== undefined) order_status = meta.order_status;
+        } catch(e) {}
+      }
+
+      const invYM = String(inv.date || '').slice(0, 7);
+      const settled = (order_status === 'COMPLETED') && (String(inv.status) === 'Paid');
+
+      let isLM = false;
+      let include = false;
+
+      if (!invYM || invYM.length < 7 || invYM === currentYM) {
+        include = true;
+      } else if (invYM < currentYM && !settled) {
+        include = true;
+        isLM = true;
+      } else {
+        include = false;
+      }
+
+      if (include) {
+        processedInvoices.push({ ...inv, _order_status: order_status, _isLM: isLM });
+      }
+    });
+    
     // Sort invoices by client_name alphabetically A-Z
-    invoices.sort((a, b) => {
+    processedInvoices.sort((a, b) => {
       const aName = (a.client_name || 'UNKNOWN').toUpperCase();
       const bName = (b.client_name || 'UNKNOWN').toUpperCase();
       return aName.localeCompare(bName);
@@ -61,26 +98,12 @@ async function run() {
       'COMPLETED': []
     };
 
-    invoices.forEach(inv => {
-      let order_status = inv.order_status || 'PENDING';
-      if (inv.notes && inv.notes.includes('__METADATA__:')) {
-        try {
-          const metaStr = inv.notes.split('__METADATA__:')[1];
-          const meta = JSON.parse(metaStr);
-          if (meta.order_status !== undefined) order_status = meta.order_status;
-        } catch(e) {}
+    processedInvoices.forEach(inv => {
+      if (!statusGroups[inv._order_status]) {
+        statusGroups[inv._order_status] = [];
       }
-      
-      if (!statusGroups[order_status]) {
-        statusGroups[order_status] = [];
-      }
-      
-      statusGroups[order_status].push(inv);
+      statusGroups[inv._order_status].push(inv);
     });
-
-    // 23:50 MYT is UTC+8
-    const mytDateObj = new Date(Date.now() + 8 * 3600 * 1000);
-    const mytDateStr = mytDateObj.toISOString().split('T')[0];
 
     const emojis = {
       'PENDING': '⏳',
@@ -101,7 +124,11 @@ async function run() {
       groupInvoices.forEach((inv, index) => {
         const clientName = escapeHtml(inv.client_name || 'UNKNOWN');
         const paymentTag = String(inv.status || 'Unpaid').toUpperCase();
-        block += `\n${index + 1}. ${clientName} [${paymentTag}]`;
+        let line = `\n${index + 1}. ${clientName} [${paymentTag}]`;
+        if (inv._isLM) {
+          line += ' <i>LM</i>';
+        }
+        block += line;
       });
       return block;
     };
