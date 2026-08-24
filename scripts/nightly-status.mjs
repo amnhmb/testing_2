@@ -1,5 +1,13 @@
 import fs from 'fs';
 
+function escapeHtml(unsafe) {
+  return (unsafe || '').replace(/&/g, "&amp;")
+       .replace(/</g, "&lt;")
+       .replace(/>/g, "&gt;")
+       .replace(/"/g, "&quot;")
+       .replace(/'/g, "&#039;");
+}
+
 async function sendTelegramMessage(text) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
@@ -12,7 +20,7 @@ async function sendTelegramMessage(text) {
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text: text })
+    body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' })
   });
   if (!res.ok) {
     console.error(`Telegram API error: ${res.status} ${res.statusText}`);
@@ -40,11 +48,11 @@ async function run() {
 
     const invoices = await res.json();
     
-    // Sort invoices by invoice_no ascending
+    // Sort invoices by client_name alphabetically A-Z
     invoices.sort((a, b) => {
-      const aNo = a.invoice_no || '';
-      const bNo = b.invoice_no || '';
-      return aNo.localeCompare(bNo, undefined, { numeric: true });
+      const aName = (a.client_name || 'UNKNOWN').toUpperCase();
+      const bName = (b.client_name || 'UNKNOWN').toUpperCase();
+      return aName.localeCompare(bName);
     });
     
     const statusGroups = {
@@ -54,7 +62,6 @@ async function run() {
     };
 
     invoices.forEach(inv => {
-      // 1. Parse Status
       let order_status = inv.order_status || 'PENDING';
       if (inv.notes && inv.notes.includes('__METADATA__:')) {
         try {
@@ -75,15 +82,26 @@ async function run() {
     const mytDateObj = new Date(Date.now() + 8 * 3600 * 1000);
     const mytDateStr = mytDateObj.toISOString().split('T')[0];
 
+    const emojis = {
+      'PENDING': '⏳',
+      'PROCESSING': '⚙️',
+      'COMPLETED': '✅',
+      'MAINTENANCE': '🛠️',
+      'NOT_SUBMITTED': '📝'
+    };
+
     let statusText = '';
     
-    const buildStatusBlock = (status) => {
-      const groupInvoices = statusGroups[status] || [];
-      let block = `${status} : ${groupInvoices.length}`;
+    const buildStatusBlock = (statusKey) => {
+      const groupInvoices = statusGroups[statusKey] || [];
+      const emoji = emojis[statusKey] || '📦';
+      const statusLabel = statusKey.replace(/_/g, ' ');
+      
+      let block = `${emoji} <b>${statusLabel}</b> : ${groupInvoices.length}`;
       groupInvoices.forEach((inv, index) => {
-        const clientName = inv.client_name || 'UNKNOWN';
+        const clientName = escapeHtml(inv.client_name || 'UNKNOWN');
         const paymentTag = String(inv.status || 'Unpaid').toUpperCase();
-        block += `\n${index + 1}. ${clientName} [${paymentTag}]`;
+        block += \`\\n\${index + 1}. \${clientName} [\${paymentTag}]\`;
       });
       return block;
     };
@@ -96,23 +114,25 @@ async function run() {
       blocks.push(buildStatusBlock(status));
     }
     
-    // Other statuses
-    for (const status of Object.keys(statusGroups)) {
-      if (!coreStatuses.includes(status)) {
-        blocks.push(buildStatusBlock(status));
-      }
+    // Other statuses, sorted alphabetically
+    const otherStatuses = Object.keys(statusGroups)
+      .filter(s => !coreStatuses.includes(s))
+      .sort((a, b) => a.localeCompare(b));
+
+    for (const status of otherStatuses) {
+      blocks.push(buildStatusBlock(status));
     }
 
-    statusText = blocks.join('\n\n');
+    statusText = blocks.join('\\n\\n');
 
-    const message = `🧾 ThirtyOne Lab Status (Snapshot Semasa)\nDate: ${mytDateStr} (MYT)\n\n📦 Orders by Status:\n\n${statusText}`;
+    const message = \`<b>🧾 ThirtyOne Lab Status</b>\\nDate: \${mytDateStr} (MYT)\\n\\n<b>📦 Orders by Status</b>\\n\\n\${statusText}\`;
 
     await sendTelegramMessage(message);
     console.log("Successfully sent nightly status.");
 
   } catch (error) {
     console.error("Error occurred:", error);
-    await sendTelegramMessage(`⚠️ Nightly status FAILED: ${error.message}`);
+    await sendTelegramMessage(\`⚠️ Nightly status FAILED: \${escapeHtml(error.message)}\`);
     process.exit(1);
   }
 }
