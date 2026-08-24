@@ -101,7 +101,7 @@ async function run() {
       groupInvoices.forEach((inv, index) => {
         const clientName = escapeHtml(inv.client_name || 'UNKNOWN');
         const paymentTag = String(inv.status || 'Unpaid').toUpperCase();
-        block += \`\\n\${index + 1}. \${clientName} [\${paymentTag}]\`;
+        block += `\n${index + 1}. ${clientName} [${paymentTag}]`;
       });
       return block;
     };
@@ -123,16 +123,16 @@ async function run() {
       blocks.push(buildStatusBlock(status));
     }
 
-    statusText = blocks.join('\\n\\n');
+    statusText = blocks.join('\n\n');
 
-    const message = \`<b>🧾 ThirtyOne Lab Status</b>\\nDate: \${mytDateStr} (MYT)\\n\\n<b>📦 Orders by Status</b>\\n\\n\${statusText}\`;
+    const message = `<b>🧾 ThirtyOne Lab Status</b>\nDate: ${mytDateStr} (MYT)\n\n<b>📦 Orders by Status</b>\n\n${statusText}`;
 
     await sendTelegramMessage(message);
     console.log("Successfully sent nightly status.");
 
   } catch (error) {
     console.error("Error occurred:", error);
-    await sendTelegramMessage(\`⚠️ Nightly status FAILED: \${escapeHtml(error.message)}\`);
+    await sendTelegramMessage(`⚠️ Nightly status FAILED: ${escapeHtml(error.message)}`);
     process.exit(1);
   }
 }
