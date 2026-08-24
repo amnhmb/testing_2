@@ -1,0 +1,29 @@
+name: Nightly Status Telegram Job
+
+on:
+  schedule:
+    # 23:50 MYT = 15:50 UTC
+    # Note: GitHub Actions cron jobs may be delayed by 5-15 mins during peak times.
+    # Additionally, cron workflows on public repositories are automatically disabled if there is no repository activity for 60 days.
+    - cron: '50 15 * * *'
+  workflow_dispatch:
+
+jobs:
+  nightly-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Nightly Status Script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: node scripts/nightly-status.mjs
