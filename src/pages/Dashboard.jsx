@@ -69,7 +69,8 @@ export default function Dashboard({ setActiveTab, onOpenInvoiceModal, onOpenPaym
     let countProcessing = 0;
     let countCompleted = 0;
     let countMaintenance = 0;
-    let countNotSubmitted = 0;
+    let countBelumDraft = 0;
+    let countDraft = 0;
 
     // 3. Financial Totals (current month)
     let collectedInvoicesMonth = 0;
@@ -94,7 +95,8 @@ export default function Dashboard({ setActiveTab, onOpenInvoiceModal, onOpenPaym
       else if (opStatus === 'PROCESSING') countProcessing++;
       else if (opStatus === 'COMPLETED') countCompleted++;
       else if (opStatus === 'MAINTENANCE') countMaintenance++;
-      else if (opStatus === 'BELUM_DRAFT' || opStatus === 'DRAFT') countNotSubmitted++;
+      else if (opStatus === 'BELUM_DRAFT') countBelumDraft++;
+      else if (opStatus === 'DRAFT') countDraft++;
 
       // Current month financials
       if (isCurrentMonth) {
@@ -133,7 +135,8 @@ export default function Dashboard({ setActiveTab, onOpenInvoiceModal, onOpenPaym
       countProcessing,
       countCompleted,
       countMaintenance,
-      countNotSubmitted,
+      countBelumDraft,
+      countDraft,
       totalKutipanJualan,
       totalKosKeluar,
       untungBersih
@@ -257,31 +260,37 @@ export default function Dashboard({ setActiveTab, onOpenInvoiceModal, onOpenPaym
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid var(--border-color)' }}>
               <span style={{ fontSize: '0.9rem', color: 'var(--text-dark)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Inbox size={14} className="text-muted" /> {tr('notSubmitted')}
+                📥 {tr('belumDraft')}
               </span>
-              <span style={{ fontWeight: '700' }}>{metrics.countNotSubmitted}</span>
+              <span style={{ fontWeight: '700' }}>{metrics.countBelumDraft}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid var(--border-color)' }}>
               <span style={{ fontSize: '0.9rem', color: 'var(--text-dark)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Clock size={14} className="text-muted" /> {tr('pending')}
+                ✏️ {tr('draft')}
+              </span>
+              <span style={{ fontWeight: '700' }}>{metrics.countDraft}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid var(--border-color)' }}>
+              <span style={{ fontSize: '0.9rem', color: 'var(--text-dark)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                ⏳ {tr('pending')}
               </span>
               <span style={{ fontWeight: '700' }}>{metrics.countPending}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid var(--border-color)' }}>
               <span style={{ fontSize: '0.9rem', color: 'var(--text-dark)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <RefreshCw size={14} style={{ color: '#2563EB' }} /> {tr('processing')}
+                ⚙️ {tr('processing')}
               </span>
               <span style={{ fontWeight: '700' }}>{metrics.countProcessing}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid var(--border-color)' }}>
               <span style={{ fontSize: '0.9rem', color: 'var(--text-dark)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <CheckCircle2 size={14} style={{ color: '#15803D' }} /> {tr('completed')}
+                ✅ {tr('completed')}
               </span>
               <span style={{ fontWeight: '700' }}>{metrics.countCompleted}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
               <span style={{ fontSize: '0.9rem', color: 'var(--text-dark)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Factory size={14} style={{ color: '#D97706' }} /> {tr('maintenance')}
+                🛠️ {tr('maintenance')}
               </span>
               <span style={{ fontWeight: '700' }}>{metrics.countMaintenance}</span>
             </div>
@@ -326,31 +335,37 @@ export default function Dashboard({ setActiveTab, onOpenInvoiceModal, onOpenPaym
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-dark)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Inbox size={13} className="text-muted" /> {tr('notSubmitted')}
+                📥 {tr('belumDraft')}
               </span>
-              <span style={{ fontSize: '0.85rem', fontWeight: '700' }}>{metrics.countNotSubmitted}</span>
+              <span style={{ fontSize: '0.85rem', fontWeight: '700' }}>{metrics.countBelumDraft}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-dark)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Clock size={13} className="text-muted" /> {tr('pending')}
+                ✏️ {tr('draft')}
+              </span>
+              <span style={{ fontSize: '0.85rem', fontWeight: '700' }}>{metrics.countDraft}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-dark)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                ⏳ {tr('pending')}
               </span>
               <span style={{ fontSize: '0.85rem', fontWeight: '700' }}>{metrics.countPending}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-dark)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <RefreshCw size={13} style={{ color: '#2563EB' }} /> {tr('processing')}
+                ⚙️ {tr('processing')}
               </span>
               <span style={{ fontSize: '0.85rem', fontWeight: '700' }}>{metrics.countProcessing}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-dark)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <CheckCircle2 size={13} style={{ color: '#15803D' }} /> {tr('completed')}
+                ✅ {tr('completed')}
               </span>
               <span style={{ fontSize: '0.85rem', fontWeight: '700' }}>{metrics.countCompleted}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-dark)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Factory size={13} style={{ color: '#D97706' }} /> {tr('maintenance')}
+                🛠️ {tr('maintenance')}
               </span>
               <span style={{ fontSize: '0.85rem', fontWeight: '700' }}>{metrics.countMaintenance}</span>
             </div>
