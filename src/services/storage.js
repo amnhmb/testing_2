@@ -224,7 +224,7 @@ export const getInvoices = async () => {
         discount_value = meta.discount_value;
         client_address = meta.client_address;
         if (meta.pengeluaran !== undefined) pengeluaran = meta.pengeluaran;
-        if (!order_status || order_status === 'BELUM_DRAFT') {
+        if (!order_status) {
             if (meta.order_status !== undefined) order_status = meta.order_status;
         }
       } catch (e) {}

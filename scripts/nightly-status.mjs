@@ -61,7 +61,7 @@ async function run() {
         try {
           const metaStr = inv.notes.split('__METADATA__:')[1];
           const meta = JSON.parse(metaStr);
-          if (!order_status || order_status === 'BELUM_DRAFT') {
+          if (!order_status) {
             if (meta.order_status !== undefined) order_status = meta.order_status;
           }
         } catch(e) {}
