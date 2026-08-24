@@ -1,0 +1,102 @@
+@media print {
+  /* Hide all siblings of the main path to the modal */
+  body > :not(#root),
+  #root > :not(.app-layout),
+  .app-layout > :not(.print-modal-overlay):not(.print-page-target) {
+    display: none !important;
+  }
+
+  /* Reset the entire ancestor chain to allow natural pagination */
+  html, body, #root, .app-layout, .print-modal-overlay, .print-page-target,
+  .A4-modal-container, .A4-scroll-wrapper, .A4-scale-container {
+    display: block !important;
+    position: static !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  /* Hide print controls */
+  .print-controls,
+  .no-print {
+    display: none !important;
+  }
+
+  /* The actual sheet styling for print */
+  .A4-sheet {
+    display: block !important;
+    position: static !important;
+    width: 210mm !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 12mm !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: none !important;
+    overflow: visible !important;
+    transform: none !important;
+    page-break-inside: auto !important;
+  }
+
+  /* Force print color for standard text */
+  h1, h2, h3, h4, h5, h6, p, td, th {
+    color: #000000;
+  }
+
+  /* Keep the table layout intact but optimize for print */
+  .table th,
+  .invoice-print-table th {
+    border-bottom: 2px solid #000000 !important;
+    padding: 0.35rem 0.25rem !important;
+    font-size: 0.65rem !important;
+  }
+
+  .table td,
+  .invoice-print-table td {
+    border-bottom: 1px solid #e0e0e0 !important;
+    padding: 0.4rem 0.25rem !important;
+    font-size: 0.7rem !important;
+  }
+
+  tr.print-avoid-break,
+  div.print-avoid-break {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .balance-row-print,
+  .balance-row-print span {
+    color: #ef4444 !important; /* Tailwind red-500 equivalent for primary-red */
+  }
+
+  .receipt-highlight-row,
+  .receipt-highlight-row span {
+    color: #15803D !important;
+  }
+
+  .invoice-table-section {
+    page-break-inside: auto !important;
+  }
+
+  .invoice-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.6rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
