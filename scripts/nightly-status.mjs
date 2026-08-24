@@ -56,13 +56,19 @@ async function run() {
     const processedInvoices = [];
     
     invoices.forEach(inv => {
-      let order_status = inv.order_status || 'PENDING';
+      let order_status = inv.order_status;
       if (inv.notes && inv.notes.includes('__METADATA__:')) {
         try {
           const metaStr = inv.notes.split('__METADATA__:')[1];
           const meta = JSON.parse(metaStr);
-          if (meta.order_status !== undefined) order_status = meta.order_status;
+          if (!order_status || order_status === 'BELUM_DRAFT') {
+            if (meta.order_status !== undefined) order_status = meta.order_status;
+          }
         } catch(e) {}
+      }
+
+      if (order_status === 'NOT_SUBMITTED' || !order_status) {
+        order_status = 'BELUM_DRAFT';
       }
 
       const invYM = String(inv.date || '').slice(0, 7);
@@ -106,11 +112,12 @@ async function run() {
     });
 
     const emojis = {
+      'BELUM_DRAFT': '📥',
+      'DRAFT': '✏️',
       'PENDING': '⏳',
       'PROCESSING': '⚙️',
       'COMPLETED': '✅',
-      'MAINTENANCE': '🛠️',
-      'NOT_SUBMITTED': '📝'
+      'MAINTENANCE': '🛠️'
     };
 
     let statusText = '';
@@ -133,8 +140,8 @@ async function run() {
       return block;
     };
 
-    // Core 3 statuses
-    const coreStatuses = ['PENDING', 'PROCESSING', 'COMPLETED'];
+    // Core 6 statuses
+    const coreStatuses = ['BELUM_DRAFT', 'DRAFT', 'PENDING', 'PROCESSING', 'COMPLETED', 'MAINTENANCE'];
     const blocks = [];
     
     for (const status of coreStatuses) {

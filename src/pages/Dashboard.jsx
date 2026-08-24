@@ -89,12 +89,12 @@ export default function Dashboard({ setActiveTab, onOpenInvoiceModal, onOpenPaym
       }
 
       // Status Operasi
-      const opStatus = inv.order_status || 'PENDING';
+      const opStatus = inv.order_status || 'BELUM_DRAFT';
       if (opStatus === 'PENDING') countPending++;
       else if (opStatus === 'PROCESSING') countProcessing++;
       else if (opStatus === 'COMPLETED') countCompleted++;
       else if (opStatus === 'MAINTENANCE') countMaintenance++;
-      else if (opStatus === 'NOT_SUBMITTED') countNotSubmitted++;
+      else if (opStatus === 'BELUM_DRAFT' || opStatus === 'DRAFT') countNotSubmitted++;
 
       // Current month financials
       if (isCurrentMonth) {
@@ -445,7 +445,7 @@ export default function Dashboard({ setActiveTab, onOpenInvoiceModal, onOpenPaym
                       </td>
                       <td style={{ textAlign: 'center' }}>
                         <span className={`badge ${inv.order_status === 'COMPLETED' ? 'badge-paid' : inv.order_status === 'PROCESSING' ? 'badge-deposit' : 'badge-unpaid'}`}>
-                          {(inv.order_status || 'PENDING').replace('_', ' ')}
+                          {(inv.order_status || 'BELUM_DRAFT').replace('_', ' ')}
                         </span>
                       </td>
                       <td style={{ textAlign: 'center' }}>
@@ -479,7 +479,7 @@ export default function Dashboard({ setActiveTab, onOpenInvoiceModal, onOpenPaym
                     </span>
                   </div>
                   <div className="mobile-card-row" style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: 'var(--text-muted)', gap: '0.5rem' }}>
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tr('statusOperasi')}: {(inv.order_status || 'PENDING').replace('_', ' ')}</span>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tr('statusOperasi')}: {(inv.order_status || 'BELUM_DRAFT').replace('_', ' ')}</span>
                     <span style={{ flexShrink: 0 }}>{new Date(inv.date).toLocaleDateString('en-GB')}</span>
                   </div>
                 </div>
