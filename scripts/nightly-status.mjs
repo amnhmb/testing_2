@@ -40,12 +40,17 @@ async function run() {
 
     const invoices = await res.json();
     
-    let totalDeposits = 0;
-    let outstandingBalance = 0;
-    const statusCounts = {
-      'PENDING': 0,
-      'PROCESSING': 0,
-      'COMPLETED': 0
+    // Sort invoices by invoice_no ascending
+    invoices.sort((a, b) => {
+      const aNo = a.invoice_no || '';
+      const bNo = b.invoice_no || '';
+      return aNo.localeCompare(bNo, undefined, { numeric: true });
+    });
+    
+    const statusGroups = {
+      'PENDING': [],
+      'PROCESSING': [],
+      'COMPLETED': []
     };
 
     invoices.forEach(inv => {
@@ -59,37 +64,48 @@ async function run() {
         } catch(e) {}
       }
       
-      statusCounts[order_status] = (statusCounts[order_status] || 0) + 1;
-
-      // 2. Financials
-      totalDeposits += parseFloat(inv.deposit || 0);
-      if (inv.status !== 'Paid') {
-        outstandingBalance += Math.max(0, parseFloat(inv.grand_total || 0) - parseFloat(inv.deposit || 0));
+      if (!statusGroups[order_status]) {
+        statusGroups[order_status] = [];
       }
+      
+      statusGroups[order_status].push(inv);
     });
 
     // 23:50 MYT is UTC+8
     const mytDateObj = new Date(Date.now() + 8 * 3600 * 1000);
     const mytDateStr = mytDateObj.toISOString().split('T')[0];
 
-    // Build the status lines, keeping the order PENDING, PROCESSING, COMPLETED first.
-    let statusText = `- PENDING: ${statusCounts['PENDING']}\n- PROCESSING: ${statusCounts['PROCESSING']}\n- COMPLETED: ${statusCounts['COMPLETED']}`;
-    for (const [status, count] of Object.entries(statusCounts)) {
-      if (!['PENDING', 'PROCESSING', 'COMPLETED'].includes(status)) {
-        statusText += `\n- ${status}: ${count}`;
+    let statusText = '';
+    
+    const buildStatusBlock = (status) => {
+      const groupInvoices = statusGroups[status] || [];
+      let block = `${status} : ${groupInvoices.length}`;
+      groupInvoices.forEach((inv, index) => {
+        const clientName = inv.client_name || 'UNKNOWN';
+        const paymentTag = String(inv.status || 'Unpaid').toUpperCase();
+        block += `\n${index + 1}. ${clientName} [${paymentTag}]`;
+      });
+      return block;
+    };
+
+    // Core 3 statuses
+    const coreStatuses = ['PENDING', 'PROCESSING', 'COMPLETED'];
+    const blocks = [];
+    
+    for (const status of coreStatuses) {
+      blocks.push(buildStatusBlock(status));
+    }
+    
+    // Other statuses
+    for (const status of Object.keys(statusGroups)) {
+      if (!coreStatuses.includes(status)) {
+        blocks.push(buildStatusBlock(status));
       }
     }
 
-    const message = `📅 ThirtyOne Lab Status (Snapshot Semasa)
-Date: ${mytDateStr} (MYT)
+    statusText = blocks.join('\n\n');
 
-📦 Orders by Status:
-${statusText}
-
-💰 Financials (All-Time):
-- Total Deposits Received: RM ${totalDeposits.toFixed(2)}
-- Total Outstanding Balance: RM ${outstandingBalance.toFixed(2)}
-`;
+    const message = `🧾 ThirtyOne Lab Status (Snapshot Semasa)\nDate: ${mytDateStr} (MYT)\n\n📦 Orders by Status:\n\n${statusText}`;
 
     await sendTelegramMessage(message);
     console.log("Successfully sent nightly status.");
