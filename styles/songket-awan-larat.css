@@ -1,0 +1,348 @@
+/* ============================================================
+   SONGKET AWAN LARAT — STYLESHEET TEMA
+   ------------------------------------------------------------
+   Nota: Warna di :root adalah CONTOH sahaja (rujukan Songket
+   Kelantan — merah manggis + emas). Boleh tukar ikut palette
+   pasangan, asalkan (1) flat/solid — tiada gradient, (2) satu
+   accent utama sahaja, (3) kontras WCAG AA dikekalkan.
+   Tukar terus di :root — jangan hardcode warna baru dalam
+   komponen di bawah.
+
+   Asset diperlukan (letak dalam /assets/songket/):
+   border_upper_left.webp, border_lower_right.webp,
+   background_pattern.webp, strip.webp, crown.webp,
+   divider.webp, set_icon.webp
+   ============================================================ */
+
+:root {
+  /* ---- Palette (contoh — boleh tukar) ---- */
+  --bg: #10172B;
+  --surface: #1E293B;
+  --text: #F8FAFC;
+  --text-muted: #CBD5E1;
+  --accent: #F8FAFC;
+  --accent-strong: #E2E8F0;
+  --accent-contrast: #10172B;
+  --border: rgba(255, 255, 255, 0.3);
+  --border-soft: rgba(255, 255, 255, 0.1);
+
+  /* ---- Spacing scale ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  --img-corner-tl: url("../assets/bunga_tanjung_design/border_upper_left_bunga_tanjung.webp?v=3");
+  --img-corner-br: url("../assets/bunga_tanjung_design/border_lower_right_bunga_tanjung.webp?v=3");
+  --img-bg-pattern: url("../assets/bunga_tanjung_design/badan_kain_bunga_tanjung.webp?v=2");
+  --img-strip: url("../assets/bunga_tanjung_design/tali_air_bunga_tanjung.webp?v=2");
+  --img-crown: url("../assets/bunga_tanjung_design/crown_bunga_tanjung.webp?v=3");
+  --img-divider: url("../assets/bunga_tanjung_design/divider_bunga_tanjung.webp?v=2");
+  --img-icon: url("../assets/bunga_tanjung_design/icon_bunga_tanjung.webp?v=3");
+}
+
+/* ============================================================
+   BASE / MOBILE-TOUCH (wajib — rujuk design-system.md)
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+button, a, input, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+button:focus-visible, a:focus-visible, input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Active/pressed state gantian hover (touch-first) */
+.btn-primary:active, .btn-secondary:active {
+  transform: scale(0.97);
+  transition: transform 100ms ease;
+}
+
+@media (hover: hover) {
+  .btn-primary:hover { background: var(--accent-strong); border-color: var(--accent-contrast); }
+}
+
+/* ============================================================
+   1. BACKGROUND PATTERN — tekstur latar, opacity rendah
+   ============================================================ */
+
+.bg-pattern {
+  position: relative;
+}
+.bg-pattern::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--img-bg-pattern);
+  background-size: 260px;
+  background-repeat: repeat;
+  opacity: 0.08;           /* PENTING: rendah supaya tak ganggu bacaan teks */
+  pointer-events: none;
+  z-index: 0;
+}
+.bg-pattern > * { position: relative; z-index: 1; }
+
+/* ============================================================
+   2. BUTTON — pill + spiral flourish (gaya Awan Larat)
+   ============================================================ */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: 48px;                 /* touch target */
+  padding: 14px 30px;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;             /* pill — melengkung penuh */
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary::before,
+.btn-primary::after {
+  content: "";
+  width: 14px;
+  height: 14px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 7 17 7 7 0 1 0-5-12 4 4 0 1 0 3 7' stroke='%23F2C230' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 13px 30px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+/* ============================================================
+   3. BINGKAI GAMBAR — garis nipis + bucu asset overlay
+   ============================================================ */
+
+.frame-songket {
+  position: relative;
+  border: 2px solid var(--accent);
+}
+.frame-songket img.hero { display: block; width: 100%; }
+
+.frame-songket .corner {
+  position: absolute;
+  width: 66px;
+  height: 66px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+.frame-songket .corner-tl {
+  top: -8px; left: -8px;
+  background-image: var(--img-corner-tl);
+  background-position: top left;
+}
+.frame-songket .corner-br {
+  bottom: -8px; right: -8px;
+  background-image: var(--img-corner-br);
+  background-position: bottom right;
+}
+
+/* ============================================================
+   4. KAD KANDUNGAN — sudut melengkung (konsisten Awan Larat)
+   ============================================================ */
+
+.card-songket {
+  background: var(--surface);
+  padding: var(--space-6);
+  border: 2px solid var(--border);
+  border-radius: 22px;              /* melengkung, BUKAN cut-corner —
+                                        konsisten dgn gaya pill button */
+}
+
+/* ============================================================
+   5. KOTAK TEKS / QUOTE — aksen sisi
+   ============================================================ */
+
+.quote-songket {
+  position: relative;
+  background: var(--surface);
+  padding: var(--space-6) var(--space-6) var(--space-6) 54px;
+  border-left: 5px solid var(--accent);
+  border-radius: 4px;
+}
+.quote-songket p {
+  font-style: italic;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ============================================================
+   6. INPUT BORANG RSVP — underline minimal, fokus jelas
+   ============================================================ */
+
+.field-group { margin-bottom: var(--space-5); }
+
+.field-group label {
+  display: block;
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: var(--space-2);
+}
+
+.input-songket {
+  width: 100%;
+  min-height: 48px;                 /* touch target */
+  padding: 14px 16px;
+  font-size: 16px;                  /* elak auto-zoom iOS */
+  background: #fff;
+  color: #1E293B; /* Tukar dark color sebab background putih */
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-songket:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 2px 0 0 var(--border);
+}
+
+/* ============================================================
+   7. DIVIDER — pembahagi seksyen pendek (guna asset divider.webp)
+   ============================================================ */
+
+.divider-songket {
+  display: block;
+  width: 100%;
+  max-width: 288px;
+  height: 43px;
+  margin: var(--space-6) auto;
+  background-image: var(--img-divider);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* ============================================================
+   8. STRIP BORDER — jalur tebal (pembahagi seksyen BESAR sahaja)
+   ============================================================ */
+
+.strip-border {
+  display: block;
+  width: 100%;
+  height: 56px;
+  background-image: var(--img-strip);
+  background-size: auto 100%;
+  background-repeat: repeat-x;
+  background-position: center;
+}
+
+/* ============================================================
+   9. CROWN / FINIAL — atas nama pengantin
+   ============================================================ */
+
+.hero-names-wrap { text-align: center; }
+
+.crown-ornament {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  height: 64px;
+  margin: 0 auto var(--space-2);
+  background-image: var(--img-crown);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.hero-names {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text);
+  margin: 0;
+}
+
+/* ============================================================
+   10. IKON SEKSYEN — gantian emoji (set_icon.webp)
+   ============================================================ */
+
+.section-heading {
+  text-align: center;
+  margin-bottom: var(--space-4);
+  display: block;
+}
+
+.section-heading .icon {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-image: var(--img-icon);
+  background-size: contain;
+  background-repeat: no-repeat;
+  vertical-align: middle;
+  margin-right: 8px;
+  transform: translateY(0);
+}
+
+.section-heading h2 {
+  display: inline;
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
+  vertical-align: middle;
+}
+
+/* ============================================================
+   11. COLOR SWATCH — paparan dress code / tema warna majlis
+   (data majlis, bukan warna tema laman — kekal neutral)
+   ============================================================ */
+
+.color-swatch-row {
+  display: flex;
+  gap: var(--space-3);
+}
+.color-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;               /* bulat penuh — memang perlu bentuk ni */
+  border: 1px solid rgba(0,0,0,0.15);
+}
